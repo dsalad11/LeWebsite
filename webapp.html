@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeBron Matching Game</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #111;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #f4c430;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 15px;
+      justify-content: center;
+      margin: 30px auto;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #333;
+      border-radius: 8px;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      display: none;
+      object-fit: cover;
+    }
+
+    .card.flipped img {
+      display: block;
+    }
+
+    .card.flipped::before {
+      display: none;
+    }
+
+    .card::before {
+      content: "";
+      background-color: #555;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 8px;
+    }
+
+    #reset {
+      margin-top: 20px;
+      background-color: #f4c430;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #reset:hover {
+      background-color: #e0b000;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>LeBron James Matching Game</h1>
+  <p>Click to reveal the cards and match the LeBrons!</p>
+  <div id="game-board"></div>
+  <button id="reset">Reset Game</button>
+
+  <script>
+    const images = [
+      "assets/img/LeSmile.jpg", // 1
+      "assets/img/LeLife.jpg", // 2
+      "assets/img/LeCrisis.jpg", // 3
+      "assets/img/LeTomAndJerry.jpg", // 4
+      "assets/img/LeMickey.jpg", // 5
+      "assets/img/LeMog.jpg", // 6
+      "assets/img/LeRead.jpg", // 7
+      "assets/img/LeMove.jpg"  // 8
+    ];
+
+    const gameBoard = document.getElementById("game-board");
+    const resetButton = document.getElementById("reset");
+
+    let cardArray = [];
+    let firstCard = null;
+    let lockBoard = false;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createBoard() {
+      const doubleImages = shuffle([...images, ...images]); // 8 pairs
+      gameBoard.innerHTML = "";
+
+      doubleImages.forEach((src, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.src = src;
+
+        const img = document.createElement("img");
+        img.src = src;
+
+        card.appendChild(img);
+        gameBoard.appendChild(card);
+
+        card.addEventListener("click", () => flipCard(card));
+      });
+    }
+
+    function flipCard(card) {
+      if (lockBoard || card.classList.contains("flipped")) return;
+
+      card.classList.add("flipped");
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      if (card.dataset.src === firstCard.dataset.src) {
+        // Match found
+        firstCard = null;
+      } else {
+        // Not a match
+        lockBoard = true;
+        setTimeout(() => {
+          card.classList.remove("flipped");
+          firstCard.classList.remove("flipped");
+          firstCard = null;
+          lockBoard = false;
+        }, 1000);
+      }
+    }
+
+    resetButton.addEventListener("click", createBoard);
+
+    // Initial game load
+    createBoard();
+  </script>
+
+</body>
+</html>
